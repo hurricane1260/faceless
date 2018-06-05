@@ -15,18 +15,18 @@ def boot_login(request):
     :param request:
     :return:
     """
-    username = request.POST.get('username')
-    password = request.POST.get('password')
+    username = request.POST.get('username', 'admin')
+    password = request.POST.get('password', '123123')
     user = authenticate(username=username,password=password)
 
-    resp_content = {'errcode':0,'errmsg':''}
+    resp_content = {'code':0,'msg':'Success'}
 
     if not user:
-        resp_content['errcode'] = 1
-        resp_content['errmsg'] = "user not invalid"
+        resp_content['code'] = 1
+        resp_content['msg'] = "user not invalid"
     else:
         resp_content['user'] = {
             'userid':user.id,
             'username':user.username
         }
-    return Response(json.dumps(resp_content))
+    return Response(resp_content)
