@@ -15,10 +15,10 @@ def boot_login(request):
     :param request:
     :return:
     """
-    username = request.POST.get('username', 'admin')
-    password = request.POST.get('password', '123123')
+    req = json.loads(request.body)
+    username = req['username']
+    password = req['password']
     user = authenticate(username=username,password=password)
-
     resp_content = {'code':0,'msg':'Success'}
 
     if not user:
