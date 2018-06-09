@@ -55,9 +55,11 @@ def boot_login(request):
         resp_content['code'] = '10001'
         resp_content['msg'] = "user not invalid"
     else:
+        group = user.groups.first()
         resp_content['type'] = type
         resp_content['user'] = {
             'userId':user.id,
-            'userName':user.username
+            'userName':user.username,
+            'userGroup':group.name
         }
     return Response(resp_content)
