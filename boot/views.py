@@ -12,13 +12,15 @@ import operator
 
 def auth(func):
     '''判断是否登录装饰器'''
-
     def inner(request, *args, **kwargs):
-        ck = request.session.get("user_id")
-        if not ck:
-            return redirect("/login.html")
+        token = request.auth
+        resp_content = {'code': '0', 'msg': 'Success'}
+        #ck = request.session.get("user_id")
+        if not token:
+            resp_content['code'] = '10003'
+            resp_content['msg'] = "user need login"
+            return Response(resp_content)
         return func(request, *args, **kwargs)
-
     return inner
 
 @api_view(['POST'])
