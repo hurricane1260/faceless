@@ -30,7 +30,7 @@ def boot_login(request):
     :return:
     """
     resp_content = {'code':'0','msg':'Success'}
-    req = json.loads(request.body)
+    req = json.loads(request.body.decode('utf-8'))
 
     if 'type' not in req:
         resp_content['code'] = '8001'
