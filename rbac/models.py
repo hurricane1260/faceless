@@ -5,11 +5,9 @@ class Menu(models.Model):
     """
     菜单
     """
+    menu_id = models.IntegerField(primary_key=True,unique=True)
     title = models.CharField(max_length=32, unique=True)
     parent = models.ForeignKey("Menu", null=True, blank=True)
-    # 定义菜单间的自引用关系
-    # 权限url 在 菜单下；菜单可以有父级菜单；还要支持用户创建菜单，因此需要定义parent字段（parent_id）
-    # blank=True 意味着在后台管理中填写可以为空，根菜单没有父级菜单
 
     def __str__(self):
         # 显示层级菜单
@@ -38,8 +36,8 @@ class Role(models.Model):
     """
     角色：绑定权限
     """
+    role_id = models.IntegerField(primary_key=True,unique=True)
     title = models.CharField(max_length=32, unique=True)
-
     permissions = models.ManyToManyField("Permission")
     # 定义角色和权限的多对多关系
 
@@ -51,13 +49,8 @@ class UserInfo(models.Model):
     """
     用户：划分角色
     """
-    username = models.CharField(max_length=32)
-    password = models.CharField(max_length=64)
-    nickname = models.CharField(max_length=32)
-    email = models.EmailField()
-
-    roles = models.ManyToManyField("Role")
-    # 定义用户和角色的多对多关系
+    user_id = models.ForeignKey("User")
+    role_id = models.ForeignKey("Role")
 
     def __str__(self):
-        return self.nickname
+        return "user:{user_id}-roles:{role_id}".format(user_id=self.user_id,role_id=self.role_id)

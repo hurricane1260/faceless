@@ -8,7 +8,10 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 import json
 import operator
+from rest_framework_jwt.settings import api_settings
 
+jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
 def auth(func):
     '''判断是否登录装饰器'''
@@ -70,7 +73,11 @@ def boot_login(request):
         resp_content['code'] = '10001'
         resp_content['msg'] = "user not invalid"
     else:
-        token = Token.objects.get(user=user)
+        #token = Token.objects.get(user=user)
+
+
+
+
         group = user.groups.first()
         resp_content['type'] = type
         resp_content['user'] = {
