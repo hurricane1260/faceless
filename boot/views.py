@@ -9,6 +9,8 @@ from rest_framework.authtoken.models import Token
 import json
 import operator
 from rest_framework_jwt.settings import api_settings
+from django.core.cache import cache
+from django_redis import get_redis_connection
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -23,6 +25,12 @@ def auth(func):
             resp_content['code'] = '10003'
             resp_content['msg'] = "user need login"
             return Response(resp_content)
+        payload = cache.get(token)
+        if not payload:
+            resp_content['code'] = '10004'
+            resp_content['msg'] = "invalid token"
+            return Response(resp_content)
+        cache.expire(token,timeout=300)
         return func(request, *args, **kwargs)
     return inner
 
@@ -75,9 +83,9 @@ def boot_login(request):
     else:
         #token = Token.objects.get(user=user)
 
-
-
-
+        payload = jwt_payload_handler(user)
+        token = jwt_encode_handler(payload)
+        cache.set(token,payload,timeout=60*5)
         group = user.groups.first()
         resp_content['type'] = type
         resp_content['user'] = {
