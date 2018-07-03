@@ -18,7 +18,7 @@ jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 def auth(func):
     '''判断是否登录装饰器'''
     def inner(request, *args, **kwargs):
-        token = request.auth
+        token = request.META.get('HTTP_AUTHORIZATION')
         resp_content = {'code': '0', 'msg': 'Success'}
         #ck = request.session.get("user_id")
         if not token:
@@ -91,7 +91,14 @@ def boot_login(request):
         resp_content['user'] = {
             'userId':user.id,
             'userName':user.username,
-            'userGroup':group.name,
-            'token':token
+            'userGroup':group.name
         }
+        resp_content['token'] = token
+    return Response(resp_content)
+
+@csrf_exempt
+@api_view(['POST'])
+@auth
+def boot_test(request):
+    resp_content = {'code': '0', 'msg': 'Success'}
     return Response(resp_content)
