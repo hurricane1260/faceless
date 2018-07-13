@@ -10,32 +10,17 @@ import json
 import operator
 from rest_framework_jwt.settings import api_settings
 from django.core.cache import cache
-from django_redis import get_redis_connection
+from .decorators import auth,request_arg_validate
+
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
-def auth(func):
-    '''判断是否登录装饰器'''
-    def inner(request, *args, **kwargs):
-        token = request.META.get('HTTP_AUTHORIZATION')
-        resp_content = {'code': '0', 'msg': 'Success'}
-        #ck = request.session.get("user_id")
-        if not token:
-            resp_content['code'] = '10003'
-            resp_content['msg'] = "user need login"
-            return Response(resp_content)
-        payload = cache.get(token)
-        if not payload:
-            resp_content['code'] = '10004'
-            resp_content['msg'] = "invalid token"
-            return Response(resp_content)
-        cache.expire(token,timeout=300)
-        return func(request, *args, **kwargs)
-    return inner
+
 
 @api_view(['POST'])
 @csrf_exempt
+@request_arg_validate("type","userName","password","captcha")
 def boot_login(request):
     """
     Login
@@ -102,3 +87,22 @@ def boot_login(request):
 def boot_test(request):
     resp_content = {'code': '0', 'msg': 'Success'}
     return Response(resp_content)
+
+@csrf_exempt
+@api_view(['POST'])
+@auth
+def boot_logout(request):
+    resp_content = {'code': '0', 'msg': 'Success'}
+    cache.delete(request.jwt_token)
+
+@csrf_exempt
+@api_view(['POST'])
+@auth
+@request_arg_validate("username","password")
+def boot_signup(request):
+    resp_content = {'code': '0', 'msg': 'Success'}
+    req = json.load(request.POST)
+    # TODO:
+    pass
+
+
