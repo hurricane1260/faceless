@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login,logout,authenticate
 from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
 from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
 from rest_framework.decorators import api_view
@@ -67,7 +68,6 @@ def boot_login(request):
         resp_content['msg'] = "user not invalid"
     else:
         #token = Token.objects.get(user=user)
-
         payload = jwt_payload_handler(user)
         token = jwt_encode_handler(payload)
         cache.set(token,payload,timeout=60*5)
@@ -94,15 +94,34 @@ def boot_test(request):
 def boot_logout(request):
     resp_content = {'code': '0', 'msg': 'Success'}
     cache.delete(request.jwt_token)
+    return Response(resp_content)
 
 @csrf_exempt
 @api_view(['POST'])
 @auth
-@request_arg_validate("username","password")
+@request_arg_validate("username","password","type")
 def boot_signup(request):
     resp_content = {'code': '0', 'msg': 'Success'}
     req = json.load(request.POST)
     # TODO:
-    pass
+    new_user = User(username=req['username'])
+    new_user.password = make_password(req['password'])
+    if not req['email']:
+        new_user.email = req['email']
+    new_user.save()
+    payload = jwt_payload_handler(new_user)
+    token = jwt_encode_handler(payload)
+    cache.set(token, payload, timeout=60 * 5)
+    group = new_user.groups.first()
+    resp_content['type'] = type
+    resp_content['user'] = {
+        'userId': new_user.id,
+        'userName': new_user.username,
+        'userGroup': group.name
+    }
+    resp_content['token'] = token
+
+
+
 
 

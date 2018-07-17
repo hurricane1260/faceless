@@ -21,8 +21,11 @@ def menus(request):
     :return:
     '''
     resp={'code':'0','msg':'success'}
-    req = json.loads(request.body.decode('utf-8'))
-    userrole = UserRole.objects.get(user=req['user'])
+    req = json.loads(request.POST)
+    user = User.objects.get(id=req['user_id'])
+    roles = UserRole.objects.filter(user = user.id)
+
+    userrole = UserRole.objects.get(user=req['user_id'])
     return Response(resp)
 
 

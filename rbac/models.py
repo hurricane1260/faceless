@@ -19,7 +19,7 @@ class Menu(models.Model):
             p = p.parent
         return '-'.join(title_list)
 
-
+'''
 class Permission(models.Model):
     """
     权限
@@ -30,18 +30,22 @@ class Permission(models.Model):
     def __str__(self):
         # 显示带菜单前缀的权限
         return '{menu}---{permission}'.format(menu=self.menu, permission=self.title)
-
+'''
 
 class Role(models.Model):
     """
     角色：绑定权限
     """
     title = models.CharField(max_length=32, unique=True)
-    permissions = models.ManyToManyField("Permission")
+    permissions = models.ManyToManyField("Menu",blank=True)
     # 定义角色和权限的多对多关系
 
     def __str__(self):
         return self.title
+
+    class Meta:
+        verbose_name="Role"
+        verbose_name_plural=verbose_name
 
 
 class UserRole(models.Model):
